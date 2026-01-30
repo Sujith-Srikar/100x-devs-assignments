@@ -1,0 +1,100 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role{
+  creator
+  contestee
+}
+
+model users{
+  id String @id @default(uuid())
+  name String 
+  email String @unique
+  password String
+  role Role @default(contestee)
+  created_at DateTime @default(now())
+  dsa_submissions dsa_submissions[]
+}
+
+model contests{
+  id String @id @default(uuid())
+  title String
+  description String?
+  creator_id Int @unique
+  start_time DateTime
+  end_time DateTime
+  created_at DateTime @default(now())
+  mcq_questions mcq_questions[]
+  dsa_problems dsa_problems[]
+}
+
+model mcq_questions{
+  id String @id @default(uuid())
+  contest_id String @default(uuid())
+  question_text String
+  options Json?
+  correct_option_index Int
+  points Int @default(1)
+  created_at DateTime @default(now())
+  contest contests @relation(fields: [contest_id], references: [id])
+}
+
+model dsa_problems{
+  id String @id @default(uuid())
+  contest_id String @default(uuid())
+  title String
+  description String
+  tags Json?
+  points Int @default(100)
+  time_limit Int @default(2000)
+  memory_limit Int @default(256)
+  created_at DateTime @default(now())
+  contest contests @relation(fields: [contest_id], references: [id])
+}
+
+model test_cases{
+  id String @id  @default(uuid())
+  problem_id String
+  input String
+  expected_output String
+  is_hidden Boolean @default(false)
+  created_at DateTime @default(now())
+}
+
+model mcq_submissions{
+  id String @id @default(uuid())
+  user_id String
+  question_id String
+  selected_option_index Int
+  is_correct Boolean
+  points_earned Int @default(0)
+  submitted_at String
+  @@unique([user_id, question_id])
+}
+
+model dsa_submissions{
+  id String @id @default(uuid())
+  user_id String
+  problem_id String
+  code String
+  language String
+  status String
+  points_earned Int @default(0)
+  test_cases_passed Int @default(0)
+  total_test_cases Int @default(0)
+  execution_time Int
+  submitted_at String
+  User users @relation(fields: [user_id], references: [id])
+}
