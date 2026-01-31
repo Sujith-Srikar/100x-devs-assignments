@@ -1,11 +1,7 @@
 import type { LogLevel, LogMessage } from "../types/index";
 
 class Logger {
-  private formatLog(
-    level: LogLevel,
-    message: string,
-    data?: unknown,
-  ): LogMessage {
+  private formatLog(level: LogLevel, message: string, data?: unknown): LogMessage {
     const log: LogMessage = {
       level,
       message,
@@ -20,21 +16,20 @@ class Logger {
   }
 
   private log(level: LogLevel, message: string, data?: unknown): void {
-    const logMessage = this.formatLog(level, message, data);
-    const logString = `[${logMessage.timestamp}] [${level.toUpperCase()}]: ${message}`;
+    const log = this.createLog(level, message, data);
 
     switch (level) {
       case "error":
-        console.error(logString, data || "");
+        console.error(log);
         break;
       case "warn":
-        console.warn(logString, data || "");
+        console.warn(log);
         break;
       case "debug":
-        console.debug(logString, data || "");
+        console.debug(log);
         break;
       default:
-        console.log(logString, data || "");
+        console.log(log);
     }
   }
 
