@@ -7,4 +7,9 @@ const signupSchema = z.object({
   role: z.enum(["creator", "contestee"]).default('contestee'),
 });
 
-export {signupSchema}
+const loginSchema = z.object({
+  email: z.email(),
+  password: z.string().min(6)
+});
+
+export {signupSchema, loginSchema}

@@ -7,6 +7,10 @@ import {
 } from "../types";
 import bcrypt from "bcrypt";
 import { logger } from "../utils/logger";
+import jwt from "jsonwebtoken";
+import * as dotenv from "dotenv";
+
+dotenv.config();
 
 const signup = async (req: Request, res: Response) => {
   try {
@@ -17,7 +21,10 @@ const signup = async (req: Request, res: Response) => {
     });
 
     if (existingUser) {
-      res.status(StatusCode.CONFLICT).json(createErrorResponse('User Already Exists'));
+      res
+        .status(StatusCode.BAD_REQUEST)
+        .json(createErrorResponse("EMAIL_ALREADY_EXISTS"));
+      return;
     }
     const hashedpassword = await bcrypt.hash(password, 10);
     const user = await prismaClient.users.create({data: {
@@ -34,4 +41,35 @@ const signup = async (req: Request, res: Response) => {
   }
 };
 
-export {signup}
+const login = async (req: Request, res: Response) => {
+  try {
+    const {email, password} = req.body;
+
+    const user = await prismaClient.users.findUnique({where: {email: email}});
+
+    if(!user){
+      res.status(StatusCode.NOT_FOUND).json(createErrorResponse('User not Found'));
+      return;
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if(!isMatch){
+      res
+        .status(StatusCode.UNAUTHORIZED)
+        .json(createErrorResponse("INVALID_CREDENTIALS"));
+    }
+
+    const JWT_SECRET = process.env.JWT_SECRET || "";
+    const token = jwt.sign({"userId": user.id, "email": user.email}, JWT_SECRET);
+
+    res.status(StatusCode.OK).json(createSuccessResponse({"token": token}));
+
+  } catch (error: any) {
+    logger.error(error);
+    return res
+      .status(StatusCode.INTERNAL_SERVER_ERROR)
+      .json(createErrorResponse("Error while loggin in"));
+  }
+}
+
+export {signup, login}

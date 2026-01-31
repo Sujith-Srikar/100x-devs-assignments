@@ -10,11 +10,13 @@ export const validate =
       schema.parse(req.body);
       next();
     } catch (error) {
-        logger.error('Validate Schema error', error);
+      logger.error("Validate Schema error", error);
       if (error instanceof z.ZodError) {
         const err = z.treeifyError(error);
         const errmsgs = err.errors;
-        res.status(StatusCode.BAD_REQUEST).json(createErrorResponse(errmsgs[0]));
+        res
+          .status(StatusCode.BAD_REQUEST)
+          .json(createErrorResponse("INVALID_REQUEST"));
       } else {
         res
           .status(StatusCode.INTERNAL_SERVER_ERROR)
