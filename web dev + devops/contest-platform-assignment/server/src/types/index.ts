@@ -48,3 +48,23 @@ export interface LogMessage {
   timestamp: string;
   data?: unknown;
 }
+
+type Role = "creator" | "contestee";
+
+export interface JwtPayload {
+  userId: string;
+  role: Role
+}
+
+export interface Test_Cases {
+  input: string;
+  expected_output: string,
+  is_hidden: boolean
+}
+
+export interface leaderBoardRow {
+  userId: string,
+  name: string,
+  totalPoints: number,
+  rank: number
+}

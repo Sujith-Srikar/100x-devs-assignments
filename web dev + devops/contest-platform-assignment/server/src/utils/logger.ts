@@ -16,7 +16,7 @@ class Logger {
   }
 
   private log(level: LogLevel, message: string, data?: unknown): void {
-    const log = this.createLog(level, message, data);
+    const log = this.formatLog(level, message, data);
 
     switch (level) {
       case "error":

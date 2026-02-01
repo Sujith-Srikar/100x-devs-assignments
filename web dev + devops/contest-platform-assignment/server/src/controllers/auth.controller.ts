@@ -60,7 +60,7 @@ const login = async (req: Request, res: Response) => {
     }
 
     const JWT_SECRET = process.env.JWT_SECRET || "";
-    const token = jwt.sign({"userId": user.id, "email": user.email}, JWT_SECRET);
+    const token = jwt.sign({"userId": user.id, "role": user.role}, JWT_SECRET);
 
     res.status(StatusCode.OK).json(createSuccessResponse({"token": token}));
 
